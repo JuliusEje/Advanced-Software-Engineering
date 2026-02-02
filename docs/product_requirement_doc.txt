@@ -1,0 +1,154 @@
+﻿## Workshop 1 Report  
+### Project Proposal and Topic  
+Course: CP3407 Advanced Software Engineering
+
+
+---
+
+
+### Activity One: Group Formation and Project Topic
+
+
+Project Topic:  
+AI-Based Resume Analysis and Optimization Web Application
+
+
+Project Duration:  
+One academic semester                     
+
+
+Group Members and Roles:  
+- Langxuan (Hugo) Cui:  
+  Full-stack Developer and Project Manager  
+  Responsible for full-stack development, overall system architecture, Git workflow management, project coordination, and integration between front-end and back-end components.
+
+
+- Julius:  
+  Full-stack Developer (Data-focused)  
+  Responsible for resume analysis logic, data processing, scoring mechanisms, and supporting back-end development.
+
+
+
+
+Reconstructed Backlog — User Stories (3 Iterations)
+🔹 Iteration 1 — Core MVP (JD-aware foundation)
+Goal: JD + Resume → Analysis → Optimised content + score
+________________
+
+
+US-01: Submit Resume and Job Description
+Title: Resume and JD Submission
+User Story:
+As a job seeker, I want to submit my resume together with a specific job description so that the system can analyse them together.
+* Priority: High (10)
+
+* Effort: 2 days
+
+________________
+
+
+US-02: Resume & JD Text Extraction
+Title: Extract Text from Resume and JD
+User Story:
+As a system, I want to extract text from the uploaded resume and job description so that content analysis can be performed.
+   * Priority: High (10)
+
+   * Effort: 2 days
+
+________________
+
+
+US-03: JD–Resume Relevance Analysis
+Title: Analyse Resume Against JD
+User Story:
+As a system, I want to compare resume content with job requirements so that relevance can be determined.
+      * Priority: High (10)
+
+      * Effort: 3 days
+
+________________
+
+
+US-04: JD-Based Resume Optimisation (Key Paragraphs)
+Title: Generate JD-Optimised Resume Sections
+User Story:
+As a user, I want the system to suggest improved resume paragraphs aligned with the job description so that my resume better matches the role.
+         * Priority: High (10)
+
+         * Effort: 3 days
+
+________________
+
+
+US-05: JD–Resume Matching Score
+Title: Resume Matching Score and Summary
+User Story:
+As a user, I want to receive a matching score and a short evaluation so that I can quickly assess my suitability for the job.
+            * Priority: Medium (20)
+
+            * Effort: 2 days
+
+________________
+
+
+🔹 Iteration 2 — Explainability & UX Improvement
+Goal: Make results understandable and useful
+________________
+
+
+US-06: Explainable Matching Feedback
+Title: Matching Explanation
+User Story:
+As a user, I want to see which parts of my resume match or do not match the job description so that I understand how the score was generated.
+               * Priority: Medium (20)
+
+               * Effort: 2 days
+
+________________
+
+
+US-07: Result Presentation UI
+Title: Resume Optimisation Result Page
+User Story:
+As a user, I want a clear and structured result page so that I can easily read the score, feedback, and optimised sections.
+                  * Priority: Medium (20)
+
+                  * Effort: 2 days
+
+________________
+
+
+US-08: Multiple JD Comparisons (Session-based)
+Title: Compare Resume Against Multiple JDs
+User Story:
+As a user, I want to analyse my resume against different job descriptions so that I can evaluate multiple job opportunities.
+                     * Priority: Low (30)
+
+                     * Effort: 2 days
+
+________________
+
+
+🔹 Iteration 3 — Phase 1 Extension
+Goal: Persistence & real product behaviour
+________________
+
+
+US-09: User Authentication
+Title: User Login and Registration
+User Story:
+As a user, I want to create an account so that my resume analyses can be saved.
+                        * Priority: Medium (20)
+
+                        * Effort: 3 days
+
+________________
+
+
+US-10: Resume & JD History Storage
+Title: Resume and JD History
+User Story:
+As a user, I want to access my past resume–JD analyses so that I can track improvements over time.
+                           * Priority: Medium (20)
+
+                           * Effort: 2 days
