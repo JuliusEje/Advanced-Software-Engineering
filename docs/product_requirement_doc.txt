@@ -1,4 +1,4 @@
-﻿## Workshop 1 Report  
+## Workshop 1 Report  
 ### Project Proposal and Topic  
 Course: CP3407 Advanced Software Engineering
 
@@ -19,7 +19,7 @@ One academic semester
 
 Group Members and Roles:  
 - Langxuan (Hugo) Cui:  
-  Full-stack Developer and Project Manager  
+  Full-stack Developer and Project Manager
   Responsible for full-stack development, overall system architecture, Git workflow management, project coordination, and integration between front-end and back-end components.
 
 
@@ -36,55 +36,40 @@ Goal: JD + Resume → Analysis → Optimised content + score
 ________________
 
 
-US-01: Submit Resume and Job Description
-Title: Resume and JD Submission
-User Story:
-As a job seeker, I want to submit my resume together with a specific job description so that the system can analyse them together.
-* Priority: High (10)
+US-01: As a user,
+I want to upload my CV to the system,
+so that I can receive an optimized version of my CV.
 
 * Effort: 2 days
 
 ________________
 
 
-US-02: Resume & JD Text Extraction
-Title: Extract Text from Resume and JD
-User Story:
-As a system, I want to extract text from the uploaded resume and job description so that content analysis can be performed.
-   * Priority: High (10)
+US-02: As a user,
+I want my resume to be optimized by the website based on the JD i uploaded,
+so that I receive an optimized content in paragraph and advice of my resume.
 
-   * Effort: 2 days
+* Effort: 2 days
 
 ________________
 
 
-US-03: JD–Resume Relevance Analysis
-Title: Analyse Resume Against JD
-User Story:
-As a system, I want to compare resume content with job requirements so that relevance can be determined.
-      * Priority: High (10)
-
-      * Effort: 3 days
+US-03: As a user, I want to view my resume score and feedback clearly on the website so that I can interpret the results easily.
+* Effort: 2 days
 
 ________________
 
 
-US-04: JD-Based Resume Optimisation (Key Paragraphs)
-Title: Generate JD-Optimised Resume Sections
-User Story:
-As a user, I want the system to suggest improved resume paragraphs aligned with the job description so that my resume better matches the role.
-         * Priority: High (10)
+US-04: As a system, I want to extract text content from uploaded resumes so that analysis can be performed.
 
          * Effort: 3 days
 
 ________________
 
 
-US-05: JD–Resume Matching Score
-Title: Resume Matching Score and Summary
-User Story:
-As a user, I want to receive a matching score and a short evaluation so that I can quickly assess my suitability for the job.
-            * Priority: Medium (20)
+US-05: As a user,
+I want the website to store me as a user,
+so that I can view my previously uploaded CVs and JDs
 
             * Effort: 2 days
 
@@ -96,10 +81,9 @@ Goal: Make results understandable and useful
 ________________
 
 
-US-06: Explainable Matching Feedback
-Title: Matching Explanation
-User Story:
-As a user, I want to see which parts of my resume match or do not match the job description so that I understand how the score was generated.
+US-06: As a user,
+I want my account data to be stored securely,
+so that my information and CVs are available whenever I return.
                * Priority: Medium (20)
 
                * Effort: 2 days
@@ -107,48 +91,8 @@ As a user, I want to see which parts of my resume match or do not match the job 
 ________________
 
 
-US-07: Result Presentation UI
-Title: Resume Optimisation Result Page
-User Story:
-As a user, I want a clear and structured result page so that I can easily read the score, feedback, and optimised sections.
-                  * Priority: Medium (20)
+US-07: As a user,
+I want my CV versions to be saved securely,
+so that I can access, update, and download them later (AS A FILE).
 
-                  * Effort: 2 days
-
-________________
-
-
-US-08: Multiple JD Comparisons (Session-based)
-Title: Compare Resume Against Multiple JDs
-User Story:
-As a user, I want to analyse my resume against different job descriptions so that I can evaluate multiple job opportunities.
-                     * Priority: Low (30)
-
-                     * Effort: 2 days
-
-________________
-
-
-🔹 Iteration 3 — Phase 1 Extension
-Goal: Persistence & real product behaviour
-________________
-
-
-US-09: User Authentication
-Title: User Login and Registration
-User Story:
-As a user, I want to create an account so that my resume analyses can be saved.
-                        * Priority: Medium (20)
-
-                        * Effort: 3 days
-
-________________
-
-
-US-10: Resume & JD History Storage
-Title: Resume and JD History
-User Story:
-As a user, I want to access my past resume–JD analyses so that I can track improvements over time.
-                           * Priority: Medium (20)
-
-                           * Effort: 2 days
+* Effort: 2 days
