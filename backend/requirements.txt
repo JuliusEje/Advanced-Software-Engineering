@@ -1,0 +1,5 @@
+Flask==2.2.3
+Werkzeug==2.2.3
+chardet==6.0.0.post1
+google-genai==0.1.0
+flask-cors==4.0.0
