@@ -40,30 +40,6 @@ def home():
 def about():
     return 'About'
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-
-    file = request.files['file']
-
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-
-        try:
-            summary = process_with_google_ai(file_path)
-
-            return jsonify({'message': 'File processed successfully', 'summary': summary}), 200
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    return jsonify({'error': 'Invalid file type'}), 400
-
 @app.route('/resume/upload', methods=['POST'])
 def resume_upload():
     if 'file' not in request.files:
