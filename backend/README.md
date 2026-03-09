@@ -58,7 +58,8 @@ gunicorn -w 4 -b 0.0.0.0:8000 wsgi:app
 
 - **GET `/`** - Health check endpoint
 - **GET `/about`** - About endpoint
-- **POST `/upload`** - Upload and analyze resume file (PDF or DOCX)
+- **POST `/resume/upload`** - Upload and analyze resume file (PDF or DOCX). Returns a resume ID for result retrieval.
+- **GET `/resume/<resume_id>/score`** - Retrieve analysis results for a resume (score, feedback, suggestions)
 
 ## Testing
 
