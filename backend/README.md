@@ -54,6 +54,13 @@ For production deployment, use a WSGI server like Gunicorn:
 gunicorn -w 4 -b 0.0.0.0:8000 wsgi:app
 ```
 
+## User Stories
+
+**US-10: Job Description analyses by server**
+- As a user,
+- I want my job description to be analyzed by the server,
+- so that I can receive targeted feedback on how to optimize my resume for the role.
+
 ## API Endpoints
 
 - **GET `/`** - Health check endpoint
