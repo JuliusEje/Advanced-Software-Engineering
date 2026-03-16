@@ -54,11 +54,20 @@ For production deployment, use a WSGI server like Gunicorn:
 gunicorn -w 4 -b 0.0.0.0:8000 wsgi:app
 ```
 
+## User Stories
+
+**US-10: Job Description analyses by server**
+
+- As a user,
+- I want my job description to be analyzed by the server,
+- so that I can receive targeted feedback on how to optimize my resume for the role.
+
 ## API Endpoints
 
 - **GET `/`** - Health check endpoint
 - **GET `/about`** - About endpoint
-- **POST `/upload`** - Upload and analyze resume file (PDF or DOCX)
+- **POST `/resume/upload`** - Upload and analyze resume file (PDF or DOCX). Returns a resume ID for result retrieval.
+- **GET `/resume/<resume_id>/score`** - Retrieve analysis results for a resume (score, feedback, suggestions)
 
 ## Testing
 
