@@ -1,25 +1,30 @@
-import axios from 'axios'
-import type { UploadResponse, ResumeScore } from '@/types'
+import apiClient from "@/api/client";
 
-const api = axios.create({
-  baseURL: '/api',
-  timeout: 30000
-})
+export async function uploadResume(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
 
-export const uploadResume = async (file: File): Promise<UploadResponse> => {
-  const formData = new FormData()
-  formData.append('file', file)
-  
-  const { data } = await api.post<UploadResponse>('/resume/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
-  
-  return data
+  try {
+    const response = await apiClient.post("/resume/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  } catch (err: any) {
+    const serverMessage = err.response?.data?.error;
+    console.error("Backend said:", serverMessage);
+    console.error("Status Code:", err.response?.status);
+    throw new Error(serverMessage || "Failed to upload resume");
+  }
 }
 
-export const getResumeScore = async (id: string): Promise<ResumeScore> => {
-  const { data } = await api.get<ResumeScore>(`/resume/${id}/score`)
-  return data
+export async function getResumeScore(resumeId: string) {
+  try {
+    const response = await apiClient.get(`/resume/${resumeId}/score`);
+    return response.data;
+  } catch (err: any) {
+    const serverMessage = err.response?.data?.error;
+    console.error("Backend said:", serverMessage);
+    console.error("Status Code:", err.response?.status);
+    throw new Error(serverMessage || "Failed to fetch resume score");
+  }
 }

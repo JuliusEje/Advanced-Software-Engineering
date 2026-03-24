@@ -12,16 +12,22 @@ import uuid
 from datetime import datetime
 import json
 import re
+import jwt
+from functools import wraps
+from supabase import create_client, Client
 
 # Load environment variables
 load_dotenv()
 API_KEY = os.getenv('GENERATIVE_API_KEY')
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+JWT_SECRET = os.getenv('JWT_SECRET', 'your-secret-key-change-in-production')
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, supports_credentials=True)  # Enable CORS for all routes
 
-# In-memory storage for resume scores
-resume_scores = {}
+# Initialize Supabase client
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -32,59 +38,149 @@ ALLOWED_EXTENSIONS = {'pdf', 'docx'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def token_required(f):
+    """Decorator to protect routes requiring authentication"""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'Authorization' in request.headers:
+            auth_header = request.headers['Authorization']
+            try:
+                token = auth_header.split(' ')[1]
+            except IndexError:
+                return jsonify({'error': 'Invalid Authorization header'}), 401
+        
+        if not token:
+            return jsonify({'error': 'Token is missing'}), 401
+        
+        try:
+            data = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+            request.user_id = data['user_id']
+            request.email = data['email']
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token has expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        return f(*args, **kwargs)
+    return decorated
+
 @app.route('/')
 def home():
-    return 'Hello, World!'
+    return jsonify({'message': 'Resume Optimizer API', 'version': '2.0'}), 200
 
-@app.route('/about')
-def about():
-    return 'About'
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'healthy'}), 200
 
 @app.route('/resume/upload', methods=['POST'])
+@token_required
 def resume_upload():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+    """Upload and analyze resume - requires authentication"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
 
-    file = request.files['file']
+        file = request.files['file']
 
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
 
-    if file and allowed_file(file.filename):
-        # Generate unique ID
-        resume_id = str(uuid.uuid4())
-        
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{resume_id}_{filename}")
-        file.save(file_path)
-
-        try:
-            summary = process_with_google_ai(file_path)
+        if file and allowed_file(file.filename):
+            # Generate unique ID
+            resume_id = str(uuid.uuid4())
             
-            # Parse the summary into structured format
-            score_data = parse_ai_summary(summary)
-            
-            # Store in memory
-            resume_scores[resume_id] = {
-                'id': resume_id,
-                'score': score_data['score'],
-                'feedback': score_data['feedback'],
-                'suggestions': score_data['suggestions'],
-                'createdAt': datetime.now().isoformat()
-            }
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{resume_id}_{filename}")
+            file.save(file_path)
 
-            return jsonify({'id': resume_id, 'message': 'Resume uploaded and analyzed successfully'}), 200
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+            try:
+                summary = process_with_google_ai(file_path)
+                
+                # Parse the summary into structured format
+                score_data = parse_ai_summary(summary)
+                
+                # Store in Supabase instead of memory
+                user_id = int(request.user_id)
+                resume_record = {
+                    'user_id': user_id,
+                    'filename': filename,
+                    'file_path': file_path,
+                    'score': score_data['score'],
+                    'feedback': score_data['feedback'],
+                    'suggestions': score_data['suggestions'],
+                    'created_at': datetime.utcnow().isoformat()
+                }
+                
+                # Insert into Supabase
+                response = supabase.table('resumes').insert(resume_record).execute()
+                
+                if not response.data:
+                    return jsonify({'error': 'Failed to save resume data'}), 500
+                
+                resume_db = response.data[0]
+                
+                return jsonify({
+                    'id': str(resume_db['id']),
+                    'message': 'Resume uploaded and analyzed successfully',
+                    'score': score_data['score'],
+                    'feedback': score_data['feedback'],
+                    'suggestions': score_data['suggestions']
+                }), 200
+            except Exception as e:
+                return jsonify({'error': f'AI processing error: {str(e)}'}), 500
 
-    return jsonify({'error': 'Invalid file type'}), 400
+        return jsonify({'error': 'Invalid file type'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Upload error: {str(e)}'}), 500
 
 @app.route('/resume/<resume_id>/score', methods=['GET'])
+@token_required
 def get_resume_score(resume_id):
-    if resume_id not in resume_scores:
-        return jsonify({'error': 'Resume not found'}), 404
-    
-    return jsonify(resume_scores[resume_id]), 200
+    """Get resume score - requires authentication and ownership"""
+    try:
+        user_id = int(request.user_id)
+        
+        # Fetch from Supabase with user ownership check
+        response = supabase.table('resumes').select('*').eq('id', resume_id).eq('user_id', user_id).execute()
+        
+        if not response.data:
+            return jsonify({'error': 'Resume not found'}), 404
+        
+        resume_data = response.data[0]
+        
+        return jsonify({
+            'id': str(resume_data['id']),
+            'score': resume_data['score'],
+            'feedback': resume_data['feedback'],
+            'suggestions': resume_data['suggestions'],
+            'createdAt': resume_data['created_at']
+        }), 200
+    except Exception as e:
+        return jsonify({'error': f'Error fetching resume: {str(e)}'}), 500
+
+@app.route('/resume/history', methods=['GET'])
+@token_required
+def get_resume_history():
+    """Get all resumes for current user"""
+    try:
+        user_id = int(request.user_id)
+        
+        # Fetch all resumes for user, ordered by most recent
+        response = supabase.table('resumes').select('id, filename, score, created_at').eq('user_id', user_id).order('created_at', desc=True).execute()
+        
+        resumes = []
+        for resume in response.data:
+            resumes.append({
+                'id': str(resume['id']),
+                'filename': resume['filename'],
+                'score': resume['score'],
+                'createdAt': resume['created_at']
+            })
+        
+        return jsonify({'resumes': resumes}), 200
+    except Exception as e:
+        return jsonify({'error': f'Error fetching history: {str(e)}'}), 500
 
 def parse_ai_summary(summary: str) -> dict:
     """
@@ -223,6 +319,10 @@ def process_with_google_ai(file_path):
         return response.text
     else:
         raise Exception("Unexpected response format: Missing 'text' attribute.")
+
+# Register auth blueprint
+from api.auth.routes import auth_bp
+app.register_blueprint(auth_bp)
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
