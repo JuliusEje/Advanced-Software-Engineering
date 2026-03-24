@@ -16,6 +16,13 @@
           >
             Sign Out
           </button>
+          <router-link
+            v-if="authStore.isAuthenticated"
+            to="/history"
+            class="btn-nav"
+          >
+            History
+          </router-link>
           <router-link v-else to="/login" class="btn-nav">
             Sign In
           </router-link>

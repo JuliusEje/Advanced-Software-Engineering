@@ -175,135 +175,35 @@ def get_resume_history():
                 'id': str(resume['id']),
                 'filename': resume['filename'],
                 'score': resume['score'],
-                'createdAt': resume['created_at']
+                'created_at': resume['created_at']
             })
         
         return jsonify({'resumes': resumes}), 200
     except Exception as e:
         return jsonify({'error': f'Error fetching history: {str(e)}'}), 500
 
-def parse_ai_summary(summary: str) -> dict:
-    """
-    Parse the AI-generated summary into structured CV optimization data.
-    Extracts or generates: score, feedback, and suggestions.
-    """
-    lines = summary.split('\n')
-    
-    # Extract score with more specific pattern matching
-    score = 75  # Default score
-    score_pattern = re.compile(r'Resume Score:\s*(\d+)/100', re.IGNORECASE)
-    for line in lines:
-        match = score_pattern.search(line)
-        if match:
-            try:
-                potential_score = int(match.group(1))
-                if 0 <= potential_score <= 100:
-                    score = potential_score
-                    break
-            except:
-                pass
-    
-    # Extract feedback (look for section starting with "Overall Feedback")
-    feedback = "Your resume has been analyzed by our AI system."
-    feedback_start = False
-    feedback_lines = []
-    
-    for i, line in enumerate(lines):
-        if 'Overall Feedback' in line:
-            feedback_start = True
-            continue
-        
-        if feedback_start:
-            line = line.strip()
-            # Stop at next major section (marked with ###)
-            if line.startswith('###') or line.startswith('##'):
-                break
-            # Skip empty lines at the start of section
-            if line and not line.startswith('**Strengths') and not line.startswith('**Weaknesses'):
-                if line.startswith('*') or line.startswith('-'):
-                    # Skip bullet points under Strengths/Weaknesses
-                    continue
-                feedback_lines.append(line)
-            # Stop after collecting the intro paragraph
-            if feedback_lines and line == '':
-                break
-    
-    if feedback_lines:
-        feedback = ' '.join([l for l in feedback_lines if l and not l.startswith('**')])
-    
-    # Extract suggestions from "Specific Improvement Suggestions" section
-    suggestions = []
-    suggestion_start = False
-    
-    for i, line in enumerate(lines):
-        if 'Specific Improvement Suggestions' in line or 'Improvement Suggestions' in line:
-            suggestion_start = True
-            continue
-        
-        if suggestion_start:
-            line = line.strip()
-            # Look for numbered sections like "**1. Something**" or "#### **1. Something**"
-            if re.match(r'#+\s*\*{0,2}\d+\.\s+', line):
-                # Extract title of suggestion (remove markdown formatting)
-                title = re.sub(r'^#+\s*\*{0,2}\d+\.\s+', '', line)
-                title = title.rstrip('*').strip()
-                if title:
-                    suggestions.append(title)
-    
-    # If we got suggestions with titles, look for their Action lines
-    if suggestions:
-        suggestion_idx = 0
-        for i, line in enumerate(lines):
-            if '**Action:**' in line:
-                action = line.replace('**Action:**', '').strip()
-                # Clean up markdown formatting
-                action = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', action)
-                action = action.strip('* ').strip()
-                if action and suggestion_idx < len(suggestions):
-                    suggestions[suggestion_idx] = f"{suggestions[suggestion_idx]}: {action}"
-                    suggestion_idx += 1
-    
-    # If we don't have enough suggestions, try extracting from Action lines directly
-    if len(suggestions) < 3:
-        suggestions = []
-        for line in lines:
-            line = line.strip()
-            # Look for action items marked with **Action:**
-            if '**Action:**' in line:
-                action = line.replace('**Action:**', '').strip()
-                # Clean up markdown formatting
-                action = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', action)
-                action = action.strip('* ').strip()
-                if action:
-                    # Truncate long actions to ~100 chars
-                    if len(action) > 100:
-                        action = action[:100].rsplit(' ', 1)[0] + '...'
-                    suggestions.append(action)
-    
-    # Final fallback if still no suggestions
-    if len(suggestions) < 3:
-        suggestions = [
-            "Clarify future dates to avoid confusion about timeline",
-            "Add a dedicated Technical Skills section for ATS optimization",
-            "Enhance bullet points with more quantifiable metrics",
-            "Include a professional summary at the top of your resume",
-            "Standardize bullet point formatting and punctuation"
-        ]
-    
-    return {
-        'score': score,
-        'feedback': feedback,
-        'suggestions': suggestions[:5]  # Limit to 5 suggestions
-    }
-
 def process_with_google_ai(file_path):
     client = genai.Client(api_key=API_KEY)
-
     filepath = pathlib.Path(file_path)
-    prompt = "Analyze this resume for a CV optimization system. Provide: 1) A resume score (0-100) based on quality and completeness, 2) Overall feedback about the resume, 3) 3-5 specific improvement suggestions. Format your response clearly with sections for each."
+    
+    prompt = """You are a brutally honest hiring manager. Analyze this resume harshly and honestly — the candidate wants real feedback, not flattery. Be specific and direct.
+
+Respond with ONLY a valid JSON object, no markdown, no extra text:
+
+{
+  "score": <0-100, strict: 90+=exceptional, 70-89=good, 50-69=needs work, <50=poor>,
+  "feedback": "<2-3 sentences, lead with the biggest problem, be blunt and specific>",
+  "suggestions": [
+    "<exact problem + exact fix>",
+    "<exact problem + exact fix>",
+    "<exact problem + exact fix>",
+    "<exact problem + exact fix>",
+    "<exact problem + exact fix>"
+  ]
+}"""
 
     response = client.models.generate_content(
-        model="gemini-3-flash-preview",
+        model="gemini-2.5-flash",
         contents=[
             types.Part.from_bytes(
                 data=filepath.read_bytes(),
@@ -313,12 +213,46 @@ def process_with_google_ai(file_path):
         ]
     )
 
-    # Ensure the response is properly handled
     if hasattr(response, 'text'):
-        print(response.text)  # Debugging output
         return response.text
     else:
-        raise Exception("Unexpected response format: Missing 'text' attribute.")
+        raise Exception("Unexpected response format from Gemini.")
+
+
+def parse_ai_summary(summary: str) -> dict:
+    """Parse structured JSON response from AI."""
+    # Strip markdown code blocks if model wraps response anyway
+    cleaned = summary.strip()
+    cleaned = re.sub(r'^```json\s*', '', cleaned)
+    cleaned = re.sub(r'^```\s*', '', cleaned)
+    cleaned = re.sub(r'\s*```$', '', cleaned)
+    cleaned = cleaned.strip()
+
+    try:
+        data = json.loads(cleaned)
+
+        score = int(data.get('score', 50))
+        score = max(0, min(100, score))  # clamp to 0-100
+
+        feedback = data.get('feedback', '').strip()
+        if not feedback:
+            raise ValueError("Empty feedback in response")
+
+        suggestions = data.get('suggestions', [])
+        suggestions = [s.strip() for s in suggestions if isinstance(s, str) and s.strip()]
+
+        if len(suggestions) < 3:
+            raise ValueError("Too few suggestions in response")
+
+        return {
+            'score': score,
+            'feedback': feedback,
+            'suggestions': suggestions[:5]
+        }
+
+    except (json.JSONDecodeError, ValueError, KeyError) as e:
+        # Only fall back if the model genuinely failed to return valid JSON
+        raise Exception(f"AI returned unparseable response: {str(e)}\nRaw: {summary[:300]}")
 
 # Register auth blueprint
 from api.auth.routes import auth_bp

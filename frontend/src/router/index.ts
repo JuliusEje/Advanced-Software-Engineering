@@ -33,6 +33,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/Result.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: "/history",
+    name: "History",
+    component: () => import("@/views/History.vue"),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({

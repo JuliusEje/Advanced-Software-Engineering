@@ -56,7 +56,7 @@
             >
               <div class="suggestion-number">{{ index + 1 }}</div>
               <div class="suggestion-content">
-                <p>{{ suggestion }}</p>
+                <p v-html="renderMarkdown(suggestion)"></p>
               </div>
             </div>
           </div>
@@ -142,6 +142,13 @@ const goBack = () => {
 const handleLogout = async () => {
   await authStore.logout();
   router.push("/");
+};
+
+const renderMarkdown = (text: string): string => {
+  if (!text) return "";
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>");
 };
 </script>
 
