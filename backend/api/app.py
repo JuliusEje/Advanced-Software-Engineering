@@ -186,7 +186,7 @@ def process_with_google_ai(file_path):
     client = genai.Client(api_key=API_KEY)
     filepath = pathlib.Path(file_path)
     
-    prompt = """You are a brutally honest hiring manager. Analyze this resume harshly and honestly — the candidate wants real feedback, not flattery. Be specific and direct.
+    prompt = """You are a brutally honest hiring manager in March of 2026. Analyze this resume harshly and honestly — the candidate wants real feedback, not flattery. Be specific and direct.
 
 Respond with ONLY a valid JSON object, no markdown, no extra text:
 
