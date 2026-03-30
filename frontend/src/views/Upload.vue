@@ -14,38 +14,76 @@
       </div>
 
       <div class="upload-content">
-        <div
-          class="upload-area"
-          :class="{ 'drag-over': isDragging }"
-          @drop.prevent="handleDrop"
-          @dragover.prevent="isDragging = true"
-          @dragleave.prevent="isDragging = false"
-        >
-          <input
-            type="file"
-            ref="fileInput"
-            @change="handleFileSelect"
-            accept=".pdf,.doc,.docx"
-            style="display: none"
-          />
+        <div class="two-column-layout">
+          <!-- Left Column: JD Section -->
+          <div class="jd-section">
+            <h3 class="section-title">Job Details (Optional)</h3>
+            <p class="section-hint">
+              Provide job details for targeted analysis
+            </p>
 
-          <div v-if="!selectedFile" class="upload-prompt">
-            <div class="upload-icon">📄</div>
-            <p class="primary-text">Drag and drop your resume here</p>
-            <p class="secondary-text">or</p>
-            <button @click="triggerFileInput" class="btn-select">
-              Choose File
-            </button>
-            <p class="file-hint">Supports PDF, DOC, DOCX (Max 10MB)</p>
+            <div class="form-group">
+              <label for="company">Company</label>
+              <input
+                id="company"
+                v-model="company"
+                type="text"
+                placeholder="e.g., Google, Microsoft"
+                class="text-input"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="jobDescription">Job Description</label>
+              <textarea
+                id="jobDescription"
+                v-model="jobDescription"
+                placeholder="Paste the job description here..."
+                class="textarea-input"
+                rows="10"
+              ></textarea>
+            </div>
           </div>
 
-          <div v-else class="file-info">
-            <div class="file-icon">✓</div>
-            <p class="file-name">{{ selectedFile.name }}</p>
-            <p class="file-size">{{ formatFileSize(selectedFile.size) }}</p>
-            <button @click="clearFile" class="btn-clear">
-              Clear Selection
-            </button>
+          <!-- Right Column: Resume Upload -->
+          <div class="resume-section">
+            <h3 class="section-title">Resume Upload</h3>
+            <p class="section-hint">Upload your resume file</p>
+
+            <div
+              class="upload-area"
+              :class="{ 'drag-over': isDragging }"
+              @drop.prevent="handleDrop"
+              @dragover.prevent="isDragging = true"
+              @dragleave.prevent="isDragging = false"
+            >
+              <input
+                type="file"
+                ref="fileInput"
+                @change="handleFileSelect"
+                accept=".pdf,.doc,.docx"
+                style="display: none"
+              />
+
+              <div v-if="!selectedFile" class="upload-prompt">
+                <div class="upload-icon">📄</div>
+                <p class="primary-text">Drag and drop your resume here</p>
+                <p class="secondary-text">or</p>
+                <button @click="triggerFileInput" class="btn-select">
+                  Choose File
+                </button>
+                <p class="file-hint">Supports PDF, DOC, DOCX (Max 10MB)</p>
+              </div>
+
+              <div v-else class="file-info">
+                <div class="file-icon">✓</div>
+                <p class="file-name">{{ selectedFile.name }}</p>
+                <p class="file-size">{{ formatFileSize(selectedFile.size) }}</p>
+                <button @click="clearFile" class="btn-clear">
+                  Clear Selection
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -84,6 +122,8 @@ const selectedFile = ref<File | null>(null);
 const isDragging = ref(false);
 const isUploading = ref(false);
 const error = ref("");
+const company = ref("");
+const jobDescription = ref("");
 
 const triggerFileInput = () => {
   fileInput.value?.click();
@@ -137,7 +177,11 @@ const handleUpload = async () => {
   error.value = "";
 
   try {
-    const response = await uploadResume(selectedFile.value);
+    const response = await uploadResume(
+      selectedFile.value,
+      company.value.trim() || undefined,
+      jobDescription.value.trim() || undefined
+    );
     router.push(`/result/${response.id}`);
   } catch (err) {
     error.value = "Upload failed. Please try again.";
@@ -210,9 +254,9 @@ const handleLogout = async () => {
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
+  max-width: 1200px;
   width: 100%;
-  margin: auto; /* This centers the container vertically and horizontally within the flex column */
+  margin: 2rem auto;
   padding: 3rem;
   box-sizing: border-box;
 }
@@ -239,14 +283,87 @@ const handleLogout = async () => {
   gap: 2rem;
 }
 
+.two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.jd-section,
+.resume-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-title {
+  color: #2d3748;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.section-hint {
+  color: #718096;
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #4a5568;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.text-input {
+  padding: 0.75rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.textarea-input {
+  padding: 0.75rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 150px;
+  transition: border-color 0.2s;
+}
+
+.textarea-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
 .upload-area {
   border: 2px dashed #cbd5e0;
   border-radius: 12px;
-  padding: 3rem 2rem;
+  padding: 2rem 1.5rem;
   text-align: center;
   background: white;
   transition: all 0.3s;
   cursor: pointer;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .upload-area.drag-over {
@@ -408,14 +525,19 @@ const handleLogout = async () => {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+  }
+
   .upload-container {
     padding: 2rem 1.5rem;
-    margin: 2rem 1rem;
+    margin: 1rem;
   }
 
   .upload-area {
     padding: 2rem 1rem;
+    min-height: 150px;
   }
 
   .upload-header h2 {
