@@ -87,39 +87,57 @@ def resume_upload():
             return jsonify({'error': 'No selected file'}), 400
 
         if file and allowed_file(file.filename):
-            # Generate unique ID
             resume_id = str(uuid.uuid4())
-            
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{resume_id}_{filename}")
             file.save(file_path)
 
             try:
-                summary = process_with_google_ai(file_path)
-                
-                # Parse the summary into structured format
-                score_data = parse_ai_summary(summary)
-                
-                # Store in Supabase instead of memory
                 user_id = int(request.user_id)
+
+                # Upload to Supabase Storage
+                storage_path = f"{user_id}/{resume_id}/{filename}"
+                mime_type = 'application/pdf' if filename.endswith('.pdf') else 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+
+                with open(file_path, 'rb') as f:
+                    file_bytes = f.read()
+
+                try:
+                    upload_response = supabase.storage.from_('resumes').upload(
+                        path=storage_path,
+                        file=file_bytes,
+                        file_options={"content-type": mime_type}
+                    )
+                    print(f"Storage upload response: {upload_response}")
+                except Exception as storage_error:
+                    print(f"Storage upload FAILED: {str(storage_error)}")
+                    return jsonify({'error': f'Storage upload failed: {str(storage_error)}'}), 500
+
+                # AI analysis
+                summary = process_with_google_ai(file_path)
+                score_data = parse_ai_summary(summary)
+
+                # Save record with storage path
                 resume_record = {
                     'user_id': user_id,
                     'filename': filename,
-                    'file_path': file_path,
+                    'file_path': storage_path,  # storage path, not local path
                     'score': score_data['score'],
                     'feedback': score_data['feedback'],
                     'suggestions': score_data['suggestions'],
                     'created_at': datetime.utcnow().isoformat()
                 }
-                
-                # Insert into Supabase
+
                 response = supabase.table('resumes').insert(resume_record).execute()
-                
+
                 if not response.data:
                     return jsonify({'error': 'Failed to save resume data'}), 500
-                
+
                 resume_db = response.data[0]
-                
+
+                # Clean up local file
+                os.remove(file_path)
+
                 return jsonify({
                     'id': str(resume_db['id']),
                     'message': 'Resume uploaded and analyzed successfully',
@@ -127,12 +145,45 @@ def resume_upload():
                     'feedback': score_data['feedback'],
                     'suggestions': score_data['suggestions']
                 }), 200
+
             except Exception as e:
                 return jsonify({'error': f'AI processing error: {str(e)}'}), 500
 
         return jsonify({'error': 'Invalid file type'}), 400
     except Exception as e:
         return jsonify({'error': f'Upload error: {str(e)}'}), 500
+
+@app.route('/resume/<resume_id>/download', methods=['GET'])
+@token_required
+def download_resume(resume_id):
+    """Generate a short-lived signed download URL - only for the owner"""
+    try:
+        user_id = int(request.user_id)
+
+        # Verify ownership first
+        response = (
+            supabase.table('resumes')
+            .select('file_path, filename')
+            .eq('id', resume_id)
+            .eq('user_id', user_id)  # ownership check
+            .execute()
+        )
+
+        if not response.data:
+            return jsonify({'error': 'Resume not found'}), 404
+
+        storage_path = response.data[0]['file_path']
+
+        # Generate signed URL valid for 60 seconds — enough to start a download
+        signed = supabase.storage.from_('resumes').create_signed_url(
+            path=storage_path,
+            expires_in=60
+        )
+
+        return jsonify({'url': signed['signedURL']}), 200
+
+    except Exception as e:
+        return jsonify({'error': f'Could not generate download link: {str(e)}'}), 500
 
 @app.route('/resume/<resume_id>/score', methods=['GET'])
 @token_required

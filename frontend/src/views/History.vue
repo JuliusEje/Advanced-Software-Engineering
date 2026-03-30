@@ -102,9 +102,19 @@
             <span class="timestamp"
               >Analyzed {{ timeAgo(resume.created_at) }}</span
             >
-            <router-link :to="`/result/${resume.id}`" class="btn-view">
-              View Full Report →
-            </router-link>
+            <div class="card-actions">
+              <button
+                @click="downloadResume(resume.id, resume.filename)"
+                class="btn-download"
+                :disabled="downloadingId === resume.id"
+              >
+                <span v-if="downloadingId === resume.id">Opening...</span>
+                <span v-else>⬇ Download CV</span>
+              </button>
+              <router-link :to="`/result/${resume.id}`" class="btn-view">
+                View Full Report →
+              </router-link>
+            </div>
           </div>
         </div>
       </div>
@@ -184,6 +194,22 @@ const getScoreLabel = (score: number | null): string => {
   if (score >= 60) return "Good";
   if (score >= 40) return "Needs Work";
   return "Poor";
+};
+
+const downloadingId = ref<string | null>(null);
+
+const downloadResume = async (resumeId: string, filename: string) => {
+  downloadingId.value = resumeId;
+  try {
+    const response = await apiClient.get(`/resume/${resumeId}/download`);
+    const signedUrl = response.data.url;
+    // Opens PDF in new tab; browser will display or prompt download
+    window.open(signedUrl, "_blank", "noopener,noreferrer");
+  } catch (err) {
+    console.error("Download failed:", err);
+  } finally {
+    downloadingId.value = null;
+  }
 };
 
 onMounted(() => {
@@ -586,6 +612,37 @@ onMounted(() => {
   font-size: 0.85rem;
 }
 
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  background: #ebf4ff;
+  color: #3182ce;
+  border: 1px solid #bee3f8;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-download:hover:not(:disabled) {
+  background: #bee3f8;
+  transform: translateY(-1px);
+}
+
+.btn-download:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-view {
   color: #667eea;
   text-decoration: none;
@@ -617,6 +674,11 @@ onMounted(() => {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
+  }
+
+  .card-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 </style>
