@@ -1,198 +1,425 @@
 <template>
   <div class="upload-page">
+    <nav class="navbar">
+      <div class="navbar-content">
+        <router-link to="/" class="nav-back">← Back to Home</router-link>
+        <button @click="handleLogout" class="btn-logout">Sign Out</button>
+      </div>
+    </nav>
+
     <div class="upload-container">
-      <h2>Upload Resume</h2>
-      
-      <div 
-        class="upload-area"
-        :class="{ 'drag-over': isDragging }"
-        @drop.prevent="handleDrop"
-        @dragover.prevent="isDragging = true"
-        @dragleave.prevent="isDragging = false"
-      >
-        <input 
-          type="file" 
-          ref="fileInput"
-          @change="handleFileSelect"
-          accept=".pdf,.doc,.docx"
-          style="display: none"
-        />
-        
-        <div v-if="!selectedFile" class="upload-prompt">
-          <p>Drag and drop your file here or</p>
-          <button @click="triggerFileInput" class="btn-select">Choose File</button>
-          <p class="file-hint">Supports PDF, DOC, DOCX formats</p>
+      <div class="upload-header">
+        <h2>Upload Your Resume</h2>
+        <p>We'll analyze it and provide detailed feedback</p>
+      </div>
+
+      <div class="upload-content">
+        <div
+          class="upload-area"
+          :class="{ 'drag-over': isDragging }"
+          @drop.prevent="handleDrop"
+          @dragover.prevent="isDragging = true"
+          @dragleave.prevent="isDragging = false"
+        >
+          <input
+            type="file"
+            ref="fileInput"
+            @change="handleFileSelect"
+            accept=".pdf,.doc,.docx"
+            style="display: none"
+          />
+
+          <div v-if="!selectedFile" class="upload-prompt">
+            <div class="upload-icon">📄</div>
+            <p class="primary-text">Drag and drop your resume here</p>
+            <p class="secondary-text">or</p>
+            <button @click="triggerFileInput" class="btn-select">
+              Choose File
+            </button>
+            <p class="file-hint">Supports PDF, DOC, DOCX (Max 10MB)</p>
+          </div>
+
+          <div v-else class="file-info">
+            <div class="file-icon">✓</div>
+            <p class="file-name">{{ selectedFile.name }}</p>
+            <p class="file-size">{{ formatFileSize(selectedFile.size) }}</p>
+            <button @click="clearFile" class="btn-clear">
+              Clear Selection
+            </button>
+          </div>
         </div>
-        
-        <div v-else class="file-info">
-          <p>Selected: {{ selectedFile.name }}</p>
-          <button @click="clearFile" class="btn-clear">Clear</button>
+
+        <button
+          @click="handleUpload"
+          :disabled="!selectedFile || isUploading"
+          class="btn-upload"
+        >
+          <span v-if="!isUploading">Upload & Analyze</span>
+          <span v-else>
+            <span class="loading-spinner"></span>
+            Analyzing...
+          </span>
+        </button>
+
+        <p v-if="error" class="error-message">{{ error }}</p>
+
+        <div v-if="isUploading" class="loading-bar">
+          <div class="progress"></div>
         </div>
       </div>
-      
-      <button 
-        @click="handleUpload" 
-        :disabled="!selectedFile || isUploading"
-        class="btn-upload"
-      >
-        {{ isUploading ? 'Uploading...' : 'Upload & Analyze' }}
-      </button>
-      
-      <p v-if="error" class="error">{{ error }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { uploadResume } from '@/api/resume'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { uploadResume } from "@/api/resume";
 
-const router = useRouter()
-const fileInput = ref<HTMLInputElement>()
-const selectedFile = ref<File | null>(null)
-const isDragging = ref(false)
-const isUploading = ref(false)
-const error = ref('')
+const router = useRouter();
+const authStore = useAuthStore();
+const fileInput = ref<HTMLInputElement>();
+const selectedFile = ref<File | null>(null);
+const isDragging = ref(false);
+const isUploading = ref(false);
+const error = ref("");
 
 const triggerFileInput = () => {
-  fileInput.value?.click()
-}
+  fileInput.value?.click();
+};
 
 const handleFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement
+  const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
-    selectedFile.value = target.files[0]
-    error.value = ''
+    const file = target.files[0];
+    if (file.size > 10 * 1024 * 1024) {
+      error.value = "File is too large. Maximum size is 10MB.";
+      return;
+    }
+    selectedFile.value = file;
+    error.value = "";
   }
-}
+};
 
 const handleDrop = (event: DragEvent) => {
-  isDragging.value = false
+  isDragging.value = false;
   if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
-    selectedFile.value = event.dataTransfer.files[0]
-    error.value = ''
+    const file = event.dataTransfer.files[0];
+    if (file.size > 10 * 1024 * 1024) {
+      error.value = "File is too large. Maximum size is 10MB.";
+      return;
+    }
+    selectedFile.value = file;
+    error.value = "";
   }
-}
+};
 
 const clearFile = () => {
-  selectedFile.value = null
+  selectedFile.value = null;
   if (fileInput.value) {
-    fileInput.value.value = ''
+    fileInput.value.value = "";
   }
-}
+};
+
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+};
 
 const handleUpload = async () => {
-  if (!selectedFile.value) return
-  
-  isUploading.value = true
-  error.value = ''
-  
+  if (!selectedFile.value) return;
+
+  isUploading.value = true;
+  error.value = "";
+
   try {
-    const response = await uploadResume(selectedFile.value)
-    router.push(`/result/${response.id}`)
+    const response = await uploadResume(selectedFile.value);
+    router.push(`/result/${response.id}`);
   } catch (err) {
-    error.value = 'Upload failed. Please try again.'
-    console.error(err)
+    error.value = "Upload failed. Please try again.";
+    console.error(err);
   } finally {
-    isUploading.value = false
+    isUploading.value = false;
   }
-}
+};
+
+const handleLogout = async () => {
+  await authStore.logout();
+  router.push("/");
+};
 </script>
 
 <style scoped>
+/* Merged and Fixed Styles */
 .upload-page {
   min-height: 100vh;
+  background: #f8f9fa;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+}
+
+.navbar {
+  width: 100%;
+  box-sizing: border-box;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-content {
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 2rem;
+}
+
+.nav-back {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  width: auto;
+}
+
+.nav-back:hover {
+  color: #764ba2;
+}
+
+.btn-logout {
+  padding: 0.6rem 1.2rem;
+  background: #e2e8f0;
+  color: #2d3748;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: #cbd5e0;
 }
 
 .upload-container {
   background: white;
-  padding: 3rem;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
+  max-width: 600px;
   width: 100%;
+  margin: auto; /* This centers the container vertically and horizontally within the flex column */
+  padding: 3rem;
+  box-sizing: border-box;
 }
 
-h2 {
+.upload-header {
   text-align: center;
   margin-bottom: 2rem;
-  color: #333;
+}
+
+.upload-header h2 {
+  color: #1a202c;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.upload-header p {
+  color: #718096;
+  font-size: 1rem;
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .upload-area {
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  padding: 3rem;
+  border: 2px dashed #cbd5e0;
+  border-radius: 12px;
+  padding: 3rem 2rem;
   text-align: center;
-  margin-bottom: 1.5rem;
+  background: white;
   transition: all 0.3s;
+  cursor: pointer;
 }
 
 .upload-area.drag-over {
   border-color: #667eea;
-  background-color: #f0f4ff;
+  background: rgba(102, 126, 234, 0.05);
+  transform: scale(1.02);
 }
 
-.upload-prompt p {
+.upload-icon {
+  font-size: 3rem;
   margin-bottom: 1rem;
-  color: #666;
+}
+
+.primary-text {
+  color: #2d3748;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.secondary-text {
+  color: #a0aec0;
+  margin: 1rem 0;
 }
 
 .btn-select {
   padding: 0.75rem 1.5rem;
-  background: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.btn-select:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .file-hint {
-  font-size: 0.875rem;
-  color: #999;
+  color: #a0aec0;
+  font-size: 0.85rem;
   margin-top: 1rem;
 }
 
 .file-info {
-  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.file-icon {
+  font-size: 2.5rem;
+  color: #48bb78;
+}
+
+.file-name {
+  color: #2d3748;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.file-size {
+  color: #718096;
+  font-size: 0.9rem;
 }
 
 .btn-clear {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background: #f44336;
-  color: white;
+  padding: 0.6rem 1.2rem;
+  background: #fed7d7;
+  color: #c53030;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-clear:hover {
+  background: #fc8181;
 }
 
 .btn-upload {
-  width: 100%;
-  padding: 1rem;
-  background: #667eea;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 1.1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: opacity 0.3s;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-upload:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 }
 
 .btn-upload:disabled {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
-.error {
-  color: #f44336;
-  text-align: center;
-  margin-top: 1rem;
+.loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  color: #e53e3e;
+  background-color: #fff5f5;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #e53e3e;
+  margin-top: -1rem;
+}
+
+.loading-bar {
+  height: 4px;
+  background-color: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  animation: progress 1.5s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% {
+    width: 0;
+  }
+  50% {
+    width: 100%;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .upload-container {
+    padding: 2rem 1.5rem;
+    margin: 2rem 1rem;
+  }
+
+  .upload-area {
+    padding: 2rem 1rem;
+  }
+
+  .upload-header h2 {
+    font-size: 1.5rem;
+  }
 }
 </style>
