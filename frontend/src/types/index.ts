@@ -16,6 +16,8 @@ export interface ResumeScore {
   feedback: string;
   suggestions: string[];
   createdAt: string;
+  company?: string;
+  jobDescription?: string;
 }
 
 export interface UploadResponse {
@@ -24,6 +26,8 @@ export interface UploadResponse {
   score?: number;
   feedback?: string;
   suggestions?: string[];
+  company?: string;
+  jobDescription?: string;
 }
 
 export interface ResumeSummary {

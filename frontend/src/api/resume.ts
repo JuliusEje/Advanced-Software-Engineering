@@ -1,8 +1,19 @@
 import apiClient from "@/api/client";
 
-export async function uploadResume(file: File) {
+export async function uploadResume(
+  file: File,
+  company?: string,
+  jobDescription?: string
+) {
   const formData = new FormData();
   formData.append("file", file);
+
+  if (company) {
+    formData.append("company", company);
+  }
+  if (jobDescription) {
+    formData.append("job_description", jobDescription);
+  }
 
   try {
     const response = await apiClient.post("/resume/upload", formData, {

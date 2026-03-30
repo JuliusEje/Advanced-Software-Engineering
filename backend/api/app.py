@@ -82,6 +82,10 @@ def resume_upload():
             return jsonify({'error': 'No file part'}), 400
 
         file = request.files['file']
+        
+        # Get optional JD fields
+        company = request.form.get('company', '').strip()
+        job_description = request.form.get('job_description', '').strip()
 
         if file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
@@ -95,7 +99,12 @@ def resume_upload():
             file.save(file_path)
 
             try:
-                summary = process_with_google_ai(file_path)
+                # Pass JD info to AI processing
+                summary = process_with_google_ai(
+                    file_path,
+                    company if company else None,
+                    job_description if job_description else None
+                )
                 
                 # Parse the summary into structured format
                 score_data = parse_ai_summary(summary)
@@ -120,13 +129,21 @@ def resume_upload():
                 
                 resume_db = response.data[0]
                 
-                return jsonify({
+                # Build response with JD fields if provided
+                response_data = {
                     'id': str(resume_db['id']),
                     'message': 'Resume uploaded and analyzed successfully',
                     'score': score_data['score'],
                     'feedback': score_data['feedback'],
                     'suggestions': score_data['suggestions']
-                }), 200
+                }
+                
+                if company:
+                    response_data['company'] = company
+                if job_description:
+                    response_data['jobDescription'] = job_description
+                
+                return jsonify(response_data), 200
             except Exception as e:
                 return jsonify({'error': f'AI processing error: {str(e)}'}), 500
 
@@ -182,11 +199,39 @@ def get_resume_history():
     except Exception as e:
         return jsonify({'error': f'Error fetching history: {str(e)}'}), 500
 
-def process_with_google_ai(file_path):
+def process_with_google_ai(file_path, company=None, job_description=None):
     client = genai.Client(api_key=API_KEY)
     filepath = pathlib.Path(file_path)
     
-    prompt = """You are a brutally honest hiring manager in March of 2026. Analyze this resume harshly and honestly — the candidate wants real feedback, not flattery. Be specific and direct.
+    # Choose prompt based on whether JD is provided
+    if job_description:
+        # Mode 2: JD-aware analysis
+        company_text = f"Company: {company}" if company else "Company: Not specified"
+        prompt = f"""You are a brutally honest hiring manager in March of 2026.
+
+TARGET POSITION:
+{company_text}
+Job Description:
+{job_description}
+
+Analyze this resume specifically for the above position. Evaluate how well the candidate's experience, skills, and qualifications match the job requirements. Be specific and direct about gaps and strengths.
+
+Respond with ONLY a valid JSON object, no markdown, no extra text:
+
+{{
+  "score": <0-100, match score: 90+=excellent match, 70-89=good match, 50-69=partial match, <50=poor match>,
+  "feedback": "<2-3 sentences about how well the resume matches the JD, lead with the biggest gap or strength>",
+  "suggestions": [
+    "<specific change to better match the JD>",
+    "<specific change to better match the JD>",
+    "<specific change to better match the JD>",
+    "<specific change to better match the JD>",
+    "<specific change to better match the JD>"
+  ]
+}}"""
+    else:
+        # Mode 1: General resume analysis (existing)
+        prompt = """You are a brutally honest hiring manager in March of 2026. Analyze this resume harshly and honestly — the candidate wants real feedback, not flattery. Be specific and direct.
 
 Respond with ONLY a valid JSON object, no markdown, no extra text:
 

@@ -19,6 +19,26 @@
           <p class="timestamp">{{ formattedDate }}</p>
         </div>
 
+        <!-- JD Section (only show if JD was provided) -->
+        <div
+          v-if="score.company || score.jobDescription"
+          class="jd-info-section"
+        >
+          <div class="section-header">
+            <h2>🏢 Target Position</h2>
+          </div>
+          <div class="jd-content">
+            <div v-if="score.company" class="jd-field">
+              <strong>Company:</strong>
+              <span>{{ score.company }}</span>
+            </div>
+            <div v-if="score.jobDescription" class="jd-field">
+              <strong>Job Description:</strong>
+              <p class="jd-text">{{ score.jobDescription }}</p>
+            </div>
+          </div>
+        </div>
+
         <div class="score-section">
           <div class="score-circle">
             <span class="score-value">{{ score.score ?? "N/A" }}</span>
@@ -26,6 +46,13 @@
             <span :class="['score-rating', scoreRatingClass]">{{
               scoreRating
             }}</span>
+          </div>
+          <div class="score-label">
+            {{
+              score.company || score.jobDescription
+                ? "Match Score"
+                : "Resume Score"
+            }}
           </div>
           <div class="score-bar">
             <div
@@ -268,6 +295,51 @@ const renderMarkdown = (text: string): string => {
   font-size: 0.9rem;
 }
 
+.jd-info-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #667eea;
+}
+
+.jd-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.jd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.jd-field strong {
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.jd-field span {
+  color: #4a5568;
+  font-size: 1rem;
+}
+
+.jd-text {
+  color: #4a5568;
+  line-height: 1.7;
+  margin: 0;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
 .score-section {
   background: white;
   border-radius: 12px;
@@ -330,6 +402,14 @@ const renderMarkdown = (text: string): string => {
 .score-rating.poor {
   background: #fed7d7;
   color: #742a2a;
+}
+
+.score-label {
+  color: #4a5568;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .score-bar {
