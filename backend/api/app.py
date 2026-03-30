@@ -49,10 +49,10 @@ def token_required(f):
                 token = auth_header.split(' ')[1]
             except IndexError:
                 return jsonify({'error': 'Invalid Authorization header'}), 401
-        
+
         if not token:
             return jsonify({'error': 'Token is missing'}), 401
-        
+
         try:
             data = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
             request.user_id = data['user_id']
@@ -61,7 +61,7 @@ def token_required(f):
             return jsonify({'error': 'Token has expired'}), 401
         except jwt.InvalidTokenError:
             return jsonify({'error': 'Invalid token'}), 401
-        
+
         return f(*args, **kwargs)
     return decorated
 
@@ -82,8 +82,8 @@ def resume_upload():
             return jsonify({'error': 'No file part'}), 400
 
         file = request.files['file']
-        
-        # Get optional JD fields
+
+        # Get optional JD fields (added in v2)
         company = request.form.get('company', '').strip()
         job_description = request.form.get('job_description', '').strip()
 
@@ -97,14 +97,6 @@ def resume_upload():
             file.save(file_path)
 
             try:
-                # Pass JD info to AI processing
-                summary = process_with_google_ai(
-                    file_path,
-                    company if company else None,
-                    job_description if job_description else None
-                )
-                
-                # Parse the summary into structured format
                 user_id = int(request.user_id)
 
                 # Upload to Supabase Storage
@@ -125,8 +117,12 @@ def resume_upload():
                     print(f"Storage upload FAILED: {str(storage_error)}")
                     return jsonify({'error': f'Storage upload failed: {str(storage_error)}'}), 500
 
-                # AI analysis
-                summary = process_with_google_ai(file_path)
+                # AI analysis — pass optional JD fields
+                summary = process_with_google_ai(
+                    file_path,
+                    company if company else None,
+                    job_description if job_description else None
+                )
                 score_data = parse_ai_summary(summary)
 
                 # Save record with storage path
@@ -146,28 +142,25 @@ def resume_upload():
                     return jsonify({'error': 'Failed to save resume data'}), 500
 
                 resume_db = response.data[0]
-                
-                # Build response with JD fields if provided
-                response_data = {
 
                 # Clean up local file
                 os.remove(file_path)
 
-                return jsonify({
+                # Build response, including JD fields if provided
+                response_data = {
                     'id': str(resume_db['id']),
                     'message': 'Resume uploaded and analyzed successfully',
                     'score': score_data['score'],
                     'feedback': score_data['feedback'],
                     'suggestions': score_data['suggestions']
                 }
-                
+
                 if company:
                     response_data['company'] = company
                 if job_description:
                     response_data['jobDescription'] = job_description
-                
+
                 return jsonify(response_data), 200
-                }), 200
 
             except Exception as e:
                 return jsonify({'error': f'AI processing error: {str(e)}'}), 500
@@ -214,15 +207,15 @@ def get_resume_score(resume_id):
     """Get resume score - requires authentication and ownership"""
     try:
         user_id = int(request.user_id)
-        
+
         # Fetch from Supabase with user ownership check
         response = supabase.table('resumes').select('*').eq('id', resume_id).eq('user_id', user_id).execute()
-        
+
         if not response.data:
             return jsonify({'error': 'Resume not found'}), 404
-        
+
         resume_data = response.data[0]
-        
+
         return jsonify({
             'id': str(resume_data['id']),
             'score': resume_data['score'],
@@ -239,10 +232,10 @@ def get_resume_history():
     """Get all resumes for current user"""
     try:
         user_id = int(request.user_id)
-        
+
         # Fetch all resumes for user, ordered by most recent
         response = supabase.table('resumes').select('id, filename, score, created_at').eq('user_id', user_id).order('created_at', desc=True).execute()
-        
+
         resumes = []
         for resume in response.data:
             resumes.append({
@@ -251,7 +244,7 @@ def get_resume_history():
                 'score': resume['score'],
                 'created_at': resume['created_at']
             })
-        
+
         return jsonify({'resumes': resumes}), 200
     except Exception as e:
         return jsonify({'error': f'Error fetching history: {str(e)}'}), 500
@@ -259,7 +252,7 @@ def get_resume_history():
 def process_with_google_ai(file_path, company=None, job_description=None):
     client = genai.Client(api_key=API_KEY)
     filepath = pathlib.Path(file_path)
-    
+
     # Choose prompt based on whether JD is provided
     if job_description:
         # Mode 2: JD-aware analysis
@@ -287,7 +280,7 @@ Respond with ONLY a valid JSON object, no markdown, no extra text:
   ]
 }}"""
     else:
-        # Mode 1: General resume analysis (existing)
+        # Mode 1: General resume analysis
         prompt = """You are a brutally honest hiring manager in March of 2026. Analyze this resume harshly and honestly — the candidate wants real feedback, not flattery. Be specific and direct.
 
 Respond with ONLY a valid JSON object, no markdown, no extra text:
