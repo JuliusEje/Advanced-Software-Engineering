@@ -8,6 +8,7 @@
         :style="{
           top: message.top + 'px',
           animationDuration: message.duration + 's',
+          animationDelay: message.delay + 's',
           animationPlayState: message.paused ? 'paused' : 'running'
         }"
         @mouseenter="pauseMessage(message.id)"
@@ -29,6 +30,7 @@ interface DanmakuMessage {
   author: string
   top: number
   duration: number
+  delay: number
   paused: boolean
 }
 
@@ -103,27 +105,29 @@ const getRandomTop = (): number => {
   return Math.random() * usableHeight + padding
 }
 
-const spawnMessage = () => {
-  if (activeMessages.value.length >= maxMessages) {
+const spawnMessage = (initialDelay: number = 0) => {
+  if (initialDelay === 0 && activeMessages.value.length >= maxMessages) {
     return
   }
 
   const testimonial = getRandomTestimonial()
+  const duration = getRandomDuration()
   const newMessage: DanmakuMessage = {
     id: messageIdCounter++,
     text: testimonial.text,
     author: testimonial.author,
     top: getRandomTop(),
-    duration: getRandomDuration(),
+    duration: duration,
+    delay: initialDelay,
     paused: false
   }
 
   activeMessages.value.push(newMessage)
 
-  // Remove message after animation completes
+  // Remove message after animation completes (considering delay)
   setTimeout(() => {
     activeMessages.value = activeMessages.value.filter(m => m.id !== newMessage.id)
-  }, newMessage.duration * 1000)
+  }, (duration + Math.abs(initialDelay)) * 1000)
 }
 
 const pauseMessage = (id: number) => {
@@ -141,16 +145,18 @@ const resumeMessage = (id: number) => {
 }
 
 onMounted(() => {
-  // Spawn initial messages with staggered timing
-  for (let i = 0; i < 5; i++) {
-    setTimeout(() => {
-      spawnMessage()
-    }, i * 600)
+  // Spawn initial messages with negative delays to make them appear already in motion
+  // This creates the illusion that messages were already moving when page loaded
+  for (let i = 0; i < 8; i++) {
+    const duration = getRandomDuration()
+    // Negative delay means animation starts from middle of its timeline
+    const negativeDelay = -(Math.random() * duration * 0.7) // Start 0-70% through animation
+    spawnMessage(negativeDelay)
   }
 
-  // Continue spawning messages
+  // Continue spawning messages normally
   spawnInterval = window.setInterval(() => {
-    spawnMessage()
+    spawnMessage(0)
   }, spawnDelay)
 })
 
