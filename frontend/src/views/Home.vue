@@ -73,39 +73,7 @@
       </div>
     </div>
 
-    <div class="benefits-section">
-      <h2>Why Choose Resume Optimizer?</h2>
-      <div class="benefits-list">
-        <div class="benefit-item">
-          <span class="check-mark">✓</span>
-          <div>
-            <h4>Professional Standards</h4>
-            <p>Analyze resumes against industry best practices</p>
-          </div>
-        </div>
-        <div class="benefit-item">
-          <span class="check-mark">✓</span>
-          <div>
-            <h4>Actionable Insights</h4>
-            <p>Get specific, immediately applicable recommendations</p>
-          </div>
-        </div>
-        <div class="benefit-item">
-          <span class="check-mark">✓</span>
-          <div>
-            <h4>Secure & Private</h4>
-            <p>Your resume data is encrypted and securely stored</p>
-          </div>
-        </div>
-        <div class="benefit-item">
-          <span class="check-mark">✓</span>
-          <div>
-            <h4>Save & Compare</h4>
-            <p>Access all your previous analyses anytime</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <DanmakuTestimonials />
   </div>
 </template>
 
@@ -113,6 +81,7 @@
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import TypingEffect from "@/components/TypingEffect.vue";
+import DanmakuTestimonials from "@/components/DanmakuTestimonials.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -296,54 +265,6 @@ const handleLogout = async () => {
   line-height: 1.6;
 }
 
-.benefits-section {
-  background: white;
-  padding: 4rem 2rem;
-  margin-top: 4rem;
-}
-
-.benefits-section h2 {
-  font-size: 2.5rem;
-  color: #1a202c;
-  text-align: center;
-  margin-bottom: 3rem;
-  font-weight: 700;
-}
-
-.benefits-list {
-  max-width: 900px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-}
-
-.benefit-item {
-  display: flex;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border-left: 4px solid #667eea;
-}
-
-.check-mark {
-  flex-shrink: 0;
-  font-size: 1.5rem;
-  color: #667eea;
-  font-weight: 700;
-}
-
-.benefit-item h4 {
-  color: #1a202c;
-  margin-bottom: 0.5rem;
-}
-
-.benefit-item p {
-  color: #718096;
-  margin: 0;
-}
-
 @media (max-width: 768px) {
   .navbar-content {
     flex-direction: column;
@@ -363,8 +284,7 @@ const handleLogout = async () => {
     font-size: 1rem;
   }
 
-  .features-section h2,
-  .benefits-section h2 {
+  .features-section h2 {
     font-size: 1.8rem;
   }
 }
