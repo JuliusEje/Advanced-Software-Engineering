@@ -294,10 +294,6 @@ See individual setup guides for deployment instructions:
 3. Test thoroughly
 4. Submit a pull request
 
-## License
-
-[Specify your license here]
-
 ## Support
 
 For issues or questions, please refer to the setup guides or contact the development team.
