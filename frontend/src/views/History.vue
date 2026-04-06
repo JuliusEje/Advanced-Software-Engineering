@@ -13,6 +13,8 @@
     </nav>
 
     <div class="history-container">
+      <JobInsightCard />
+      
       <div class="history-header">
         <h2>Your Resume History</h2>
         <p>All your previously analyzed resumes in one place</p>
@@ -127,6 +129,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import apiClient from "@/api/client";
+import JobInsightCard from "@/components/JobInsightCard.vue";
 
 interface Resume {
   id: string;
