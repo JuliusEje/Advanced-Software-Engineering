@@ -97,14 +97,6 @@ def resume_upload():
             file.save(file_path)
 
             try:
-                # Pass JD info to AI processing
-                summary = process_with_google_ai(
-                    file_path,
-                    company if company else None,
-                    job_description if job_description else None
-                )
-                
-                # Parse the summary into structured format
                 user_id = int(request.user_id)
 
                 # Upload to Supabase Storage
@@ -125,15 +117,19 @@ def resume_upload():
                     print(f"Storage upload FAILED: {str(storage_error)}")
                     return jsonify({'error': f'Storage upload failed: {str(storage_error)}'}), 500
 
-                # AI analysis
-                summary = process_with_google_ai(file_path)
+                # AI analysis with optional JD info
+                summary = process_with_google_ai(
+                    file_path,
+                    company if company else None,
+                    job_description if job_description else None
+                )
                 score_data = parse_ai_summary(summary)
 
                 # Save record with storage path
                 resume_record = {
                     'user_id': user_id,
                     'filename': filename,
-                    'file_path': storage_path,  # storage path, not local path
+                    'file_path': storage_path,
                     'score': score_data['score'],
                     'feedback': score_data['feedback'],
                     'suggestions': score_data['suggestions'],
@@ -146,14 +142,12 @@ def resume_upload():
                     return jsonify({'error': 'Failed to save resume data'}), 500
 
                 resume_db = response.data[0]
-                
-                # Build response with JD fields if provided
-                response_data = {
 
                 # Clean up local file
                 os.remove(file_path)
-
-                return jsonify({
+                
+                # Build response with JD fields if provided
+                response_data = {
                     'id': str(resume_db['id']),
                     'message': 'Resume uploaded and analyzed successfully',
                     'score': score_data['score'],
@@ -167,9 +161,11 @@ def resume_upload():
                     response_data['jobDescription'] = job_description
                 
                 return jsonify(response_data), 200
-                }), 200
 
             except Exception as e:
+                # Clean up local file on error
+                if os.path.exists(file_path):
+                    os.remove(file_path)
                 return jsonify({'error': f'AI processing error: {str(e)}'}), 500
 
         return jsonify({'error': 'Invalid file type'}), 400
