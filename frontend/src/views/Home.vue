@@ -32,11 +32,7 @@
 
     <div class="hero-section">
       <div class="hero-content">
-        <h1>Optimize Your Resume with AI</h1>
-        <p class="hero-subtitle">
-          Get professional feedback and actionable suggestions to make your CV
-          stand out
-        </p>
+        <TypingEffect />
 
         <button
           v-if="authStore.isAuthenticated"
@@ -116,6 +112,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import TypingEffect from "@/components/TypingEffect.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
