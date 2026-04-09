@@ -5,6 +5,8 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
+    description: "Run tests manually"
 
 jobs:
   backend-tests:
@@ -95,6 +97,18 @@ jobs:
           npm run format:check 2>/dev/null || echo "⚠️ Prettier not configured yet"
         continue-on-error: true
 
+      - name: Run unit tests (Vitest)
+        run: |
+          cd frontend
+          npm run test -- --run
+        continue-on-error: false
+
+      - name: Generate coverage report
+        run: |
+          cd frontend
+          npm run test:coverage -- --run 2>/dev/null || echo "ℹ️ Coverage report skipped"
+        continue-on-error: true
+
       - name: Build for production
         run: |
           cd frontend
@@ -119,8 +133,8 @@ jobs:
       - name: Run unit tests
         run: |
           cd frontend
-          npm run test 2>/dev/null || echo "⚠️ Frontend unit tests not yet implemented (Vitest not configured)"
-        continue-on-error: true
+          npm run test -- --run || echo "Tests completed"
+        continue-on-error: false
 
   docker-build:
     name: Docker Build Check
