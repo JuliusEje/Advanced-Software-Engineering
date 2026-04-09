@@ -87,7 +87,9 @@ describe("Login.vue", () => {
     const emailInput = wrapper.find('input[type="email"]');
     if (emailInput.exists()) {
       await emailInput.setValue("test@example.com");
-      expect(emailInput.element.value).toContain("test@example.com");
+      expect((emailInput.element as HTMLInputElement).value).toContain(
+        "test@example.com",
+      );
     }
   });
 
@@ -104,7 +106,9 @@ describe("Login.vue", () => {
     const passwordInput = wrapper.find('input[type="password"]');
     if (passwordInput.exists()) {
       await passwordInput.setValue("password123");
-      expect(passwordInput.element.value).toContain("password123");
+      expect((passwordInput.element as HTMLInputElement).value).toContain(
+        "password123",
+      );
     }
   });
 });

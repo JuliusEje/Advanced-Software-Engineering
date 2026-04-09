@@ -17,9 +17,11 @@ describe("Resume Store", () => {
     const store = useResumeStore();
 
     const mockScore = {
+      id: "score-123",
       score: 85,
       feedback: "Good resume",
       suggestions: ["Add metrics", "Improve format", "Update skills"],
+      createdAt: "2026-01-01T00:00:00Z",
     };
 
     store.setScore(mockScore);
@@ -32,9 +34,11 @@ describe("Resume Store", () => {
     const store = useResumeStore();
 
     store.setScore({
+      id: "score-456",
       score: 80,
       feedback: "test",
       suggestions: [],
+      createdAt: "2026-01-01T00:00:00Z",
     });
 
     expect(store.currentScore).not.toBeNull();
@@ -47,11 +51,19 @@ describe("Resume Store", () => {
   it("tracks scores with setScore", () => {
     const store = useResumeStore();
 
-    const score1 = { score: 85, feedback: "Ok", suggestions: [] };
+    const score1 = {
+      id: "1",
+      score: 85,
+      feedback: "Ok",
+      suggestions: [],
+      createdAt: "2026-01-01T00:00:00Z",
+    };
     const score2 = {
+      id: "2",
       score: 90,
       feedback: "Great",
       suggestions: ["Keep it up"],
+      createdAt: "2026-01-02T00:00:00Z",
     };
 
     store.setScore(score1);
