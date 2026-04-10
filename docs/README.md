@@ -330,7 +330,7 @@ All documentation in this project follows these standards:
 For questions about this documentation:
 - **Project Lead:** Cui Langxuan
 - **Technical Lead:** Julius Eje
-- **Repository:** [GitHub Repository URL]
+- **Repository:** https://github.com/JuliusEje/Advanced-Software-Engineering
 
 ---
 
