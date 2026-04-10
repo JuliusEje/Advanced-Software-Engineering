@@ -201,6 +201,26 @@ For technical issues or questions, please refer to the setup guides or contact t
 
 
 
+## Visual Assets(/images)
+
+Project diagrams and design mockups are available in the `images/` folder:
+
+### Architecture & Design Diagrams
+- **[Architecture Diagram](images/architecture.png)** - System architecture visualization
+- **[Entity-Relationship Diagram](images/erd.png)** - Database schema and relationships
+- **[Authentication Flow](images/auth.png)** - User authentication process
+- **[Upload Flow](images/upload-flow.png)** - Resume upload and analysis workflow
+- **[Registration Flow](images/Registration.png)** - User registration process
+
+### UI Design Mockups
+- **[Home Page](images/UI_DESIGN_MOCKS/Home.png)** - Landing page design
+- **[Login Page](images/UI_DESIGN_MOCKS/Login.png)** - User login interface
+- **[Register Page](images/UI_DESIGN_MOCKS/Register.png)** - Registration interface
+- **[Upload Page](images/UI_DESIGN_MOCKS/Upload.png)** - Resume upload interface
+- **[Result Page](images/UI_DESIGN_MOCKS/Result.png)** - Analysis results display
+
+---
+
 ## Documentation
 
 Comprehensive project documentation is available in the `docs/` folder:
@@ -233,6 +253,5 @@ Key directories:
 - `backend/` - Flask API server
 - `frontend/` - Vue 3 SPA
 - `docs/` - Project documentation
+- `images/` - Architecture diagrams and UI mockups
 - `tests/` - Test suites
-- 'images/' - Project images and assets
-- 'docs/' - Documentation files
