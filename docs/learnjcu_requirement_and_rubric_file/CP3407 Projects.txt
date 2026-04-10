@@ -1,0 +1,32 @@
+CP3407 Projects
+
+This assessment task has been prepared by Dr. Dasheng LIU for James Cook University. Updated 29 January 2025.
+
+© Copyright 2023
+
+This publication is copyright. Apart from any fair dealing for the purpose of private study, research, criticism, or review as permitted under the Copyright Act, no part may be reproduced by any process or placed in computer memory without written permission.
+
+
+The following are requirements for acceptable project(s) for this subject. When selecting a project, please keep in mind that:
+
+The project must be a software/IT development project, i.e. it requires writing source code of some sort or customisation of a software system.
+
+You are strongly encouraged to use any productivity tools or software libraries, e.g. mobile app builders, or website builders.
+
+The project must have a modern database, e.g. relational database such as mySQL.
+
+The project must have a modern graphical user interface (GUI), i.e. command-line printout is not a GUI.
+
+
+The project for this subject offering is:
+
+Website, desktop or mobile app.
+
+You are strongly encouraged to study similar services to your project to learn and discover your user stories.
+
+To get HD mark you need to use modern tools.
+
+Maximum number of students per team: 3.
+
+
+James Cook University    Page 1    [Insert Subject Code]
