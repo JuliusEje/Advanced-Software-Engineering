@@ -8,6 +8,11 @@ on:
   workflow_dispatch:
     description: "Run tests manually"
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   backend-tests:
     name: Backend Tests (Python)
@@ -229,11 +234,31 @@ jobs:
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
+        continue-on-error: true
         with:
           script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '✅ All checks passed!\n\n- Backend tests: ✓\n- Frontend build: ✓\n- Docker images: ✓\n\nReady to merge!'
-            })
+            const backendStatus = '${{ needs.backend-tests.result }}';
+            const frontendStatus = '${{ needs.frontend-tests.result }}';
+            const dockerStatus = '${{ needs.docker-build.result }}';
+            
+            let body = '## 🧪 Test Results Summary\n\n';
+            body += `- Backend tests: ${backendStatus === 'success' ? '✅' : '❌'}\n`;
+            body += `- Frontend build: ${frontendStatus === 'success' ? '✅' : '⚠️'}\n`;
+            body += `- Docker images: ${dockerStatus === 'success' ? '✅' : '❌'}\n\n`;
+            
+            if (backendStatus === 'success' && dockerStatus === 'success') {
+              body += '✅ **Critical checks passed - Ready to merge!**';
+            } else {
+              body += '⚠️ **Some checks failed - Please review the logs above**';
+            }
+            
+            try {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } catch (error) {
+              console.log('Could not post comment:', error.message);
+            }
