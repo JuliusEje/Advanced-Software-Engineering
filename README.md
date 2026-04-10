@@ -249,7 +249,7 @@ See individual setup guides:
 
 **Team Members:**
 - Cui Langxuan -(langxuan.cui@my.jcu.edu.au)- Full-stack Developer and Project Manager
-- Julius Eje -(Your email)- Full-stack Developer (Data-focused)
+- Julius Eje -(JuliusEjeanye@icloud.com)- Full-stack Developer (Data-focused)
 
 **Course Lecturer:**
 - Liu Dasheng
