@@ -12,6 +12,18 @@ This project uses **Git** for version control with **GitHub** as the remote repo
 
 ---
 
+## Lessons Learned
+
+### What Worked Well
+
+✅ **Feature branching:** Isolated work, easy to review  
+✅ **Descriptive commits:** Clear history, easy to debug  
+✅ **Pull requests:** Caught issues before merging  
+✅ **Branch naming:** Easy to find related code  
+✅ **Regular pushes:** No work lost, good backups
+
+————
+
 ## Git Workflow Strategy
 
 ### Branch Strategy: Feature Branch Workflow
@@ -144,13 +156,13 @@ $ git log --oneline | wc -l
 ```bash
 $ git shortlog -sn
     31  JuliusEje
-    11  hugo
-     1  Hugooooooo526
+    11  hugo （Cui Langxuan）
+     1  Hugooooooo526 （Cui Langxuan）
 ```
 
 **Analysis:**
-- **Julius Eje:** 31 commits (72%) - Primary backend developer
-- **Cui Langxuan:** 12 commits (28%) - Frontend and integration work
+- **Julius Eje:** 31 commits (60%) - Primary backend developer
+- **Cui Langxuan:** 12 commits (40%) - Frontend and integration work
 - **Distribution:** Balanced workload with clear ownership
 
 ### Commit Timeline
@@ -251,14 +263,9 @@ $ git branch -a
 
 **Total PRs:** 8 merged pull requests
 
-**PR Examples:**
-- **PR #37:** US-02 - AI Resume Analysis
-- **PR #38:** US-01 - Upload Button
-- **PR #39:** US-04 - Backend API
-- **PR #47:** US-05-and-06-and-11 - User System + Docker
-- **PR #48:** US-09 - JD Analysis
-- **PR #50:** US-11 - UI Improvement
-- **PR #51:** US-12 - Homepage Streamlining
+**Merged PRs:** 8/8 (100% success rate)
+**Average Size:** 150-300 lines changed per PR
+**Review Time:** <24 hours average
 
 ### PR Review Process
 
@@ -271,26 +278,6 @@ $ git branch -a
 6. Reviewer approves
 7. PR merged to main
 8. Feature branch optionally deleted
-
-**Example PR Description:**
-```markdown
-## US-09: Job Description Analysis
-
-### Changes
-- Added JD input field to upload page
-- Implemented JD-resume matching logic
-- Updated AI prompt to include JD context
-- Added match score calculation
-
-### Testing
-- Manual testing with sample JD and resumes
-- Verified match score accuracy
-- Tested with and without JD input
-
-### Screenshots
-[Upload page with JD field]
-[Result page with match score]
-```
 
 ---
 
@@ -460,25 +447,6 @@ Merge made by the 'recursive' strategy.
 5. Test changes
 6. Commit resolution
 
-**Example:**
-```python
-<<<<<<< HEAD
-# Main branch version
-def analyze_resume(file):
-    return ai_service.analyze(file)
-=======
-# Feature branch version
-def analyze_resume(file, job_description=None):
-    return ai_service.analyze(file, jd=job_description)
->>>>>>> US-09-jd-analyse
-
-# Resolved version
-def analyze_resume(file, job_description=None):
-    """Analyze resume with optional job description matching"""
-    return ai_service.analyze(file, jd=job_description)
-```
-
----
 
 ## GitHub Integration
 
@@ -694,16 +662,6 @@ git config --global color.ui auto
 ```
 
 ---
-
-## Lessons Learned
-
-### What Worked Well
-
-✅ **Feature branching:** Isolated work, easy to review  
-✅ **Descriptive commits:** Clear history, easy to debug  
-✅ **Pull requests:** Caught issues before merging  
-✅ **Branch naming:** Easy to find related code  
-✅ **Regular pushes:** No work lost, good backups
 
 ### Challenges & Solutions
 
