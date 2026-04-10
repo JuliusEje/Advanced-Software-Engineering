@@ -6,9 +6,8 @@
 **Institution:** James Cook University (JCU)  
 **Assessment:** Project Assignment  
 **Team:** Group 6  
-**Team Members:** Cui Langxuan, Julius Eje  
-**Lecturer:** Liu Dasheng
-@dasheng.liu@jcu.edu.au
+**Team Members:** Cui Langxuan(@Hugooooooo526), Julius Eje(@JuliusEje)  
+**Lecturer:** Liu Dasheng(@Dasheng LIU)
 **Semester:** 2026 Semester 1
 
 ---
