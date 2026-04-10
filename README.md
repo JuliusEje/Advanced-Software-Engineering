@@ -7,7 +7,8 @@
 **Assessment:** Project Assignment  
 **Team:** Group 6  
 **Team Members:** Cui Langxuan, Julius Eje  
-**Lecturer:** Liu Dasheng  
+**Lecturer:** Liu Dasheng
+@dasheng.liu@jcu.edu.au
 **Semester:** 2026 Semester 1
 
 ---
