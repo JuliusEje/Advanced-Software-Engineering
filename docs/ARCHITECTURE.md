@@ -5,6 +5,7 @@
 The Resume Optimizer is a **full-stack web application** for AI-powered resume analysis using modern cloud-native technologies. The architecture follows a **three-tier pattern**: Frontend (Vue 3 SPA), Backend (Flask REST API), and Data (Supabase PostgreSQL).
 
 ## System Architecture Diagram
+![System Architecture](../images/architecture.png)
 
 ```mermaid
 graph TD
@@ -178,6 +179,7 @@ PostgreSQL Database
 ## Data Flow Diagrams
 
 ### 1. Registration Flow
+![Registration Flow](../images/Registration.png)
 
 ```mermaid
 sequenceDiagram
@@ -204,6 +206,7 @@ sequenceDiagram
 ```
 
 ### 2. Resume Upload & Analysis Flow
+![Upload Flow](../images/upload-flow.png)
 
 ```mermaid
 sequenceDiagram
@@ -239,6 +242,7 @@ sequenceDiagram
 ```
 
 ### 3. Authentication Flow on App Load
+![Auth Flow](../images/auth.png)
 
 ```mermaid
 sequenceDiagram
