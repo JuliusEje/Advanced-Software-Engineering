@@ -18,7 +18,7 @@ One academic semester
 
 
 Group Members and Roles:  
-- Langxuan (Hugo) Cui:  
+- Cui Langxuan:  
   Full-stack Developer and Project Manager
   Responsible for full-stack development, overall system architecture, Git workflow management, project coordination, and integration between front-end and back-end components.
 
@@ -96,3 +96,24 @@ I want my CV versions to be saved securely,
 so that I can access, update, and download them later (AS A FILE).
 
 * Effort: 2 days
+
+US-08: Add repo to vercel to have ci/cd and deployment
+As a user,
+I want the website to be deployed online,
+so that I can access it from any device with internet connectivity.
+
+* Effort: 1 day
+
+US-09: [FE]Send JD content to backend
+As a user,
+I want 
+to input the job description in the frontend,
+so that the backend can process it for analysis.
+
+* Effort: 1 day
+
+
+US-10: Job Description analyses by server
+As a user,
+I want my job description to be analyzed by the server,
+so that I can receive targeted feedback on how to optimize my resume for the role.

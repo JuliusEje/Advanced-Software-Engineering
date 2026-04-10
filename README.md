@@ -1,5 +1,19 @@
 # AI-Based Resume Analysis and Optimization Web Application
 
+## Course Information
+
+**Course:** CP3407 Advanced Software Engineering  
+**Institution:** James Cook University (JCU)  
+**Assessment:** Project Assignment  
+**Team:** Group 6  
+**Team Members:** Cui Langxuan(@Hugooooooo526), Julius Eje(@JuliusEje)  
+**Lecturer:** Liu Dasheng(@Dasheng LIU)
+**Semester:** 2026 Semester 1
+
+---
+
+## Project Overview
+
 A professional web application that uses AI to analyze and optimize resumes. Features secure user authentication, session management, and detailed resume scoring with actionable improvement suggestions.
 
 ## Features
@@ -59,63 +73,6 @@ A professional web application that uses AI to analyze and optimize resumes. Fea
 - Tables: `users`, `resumes`
 - Automatic backups and scaling
 
-## Project Structure
-
-```
-.
-├── README.md
-├── backend/
-│   ├── SETUP.md                 # Backend setup instructions
-│   ├── requirements.txt         # Python dependencies
-│   ├── wsgi.py                  # WSGI entry point
-│   ├── .env                     # Environment variables (not versioned)
-│   ├── api/
-│   │   ├── app.py              # Main Flask application
-│   │   ├── models.py           # Database schemas
-│   │   ├── auth/
-│   │   │   ├── __init__.py
-│   │   │   └── routes.py       # Authentication endpoints
-│   │   ├── routes/
-│   │   ├── utils/
-│   │   └── services/
-│   ├── config/
-│   │   ├── __init__.py
-│   │   └── settings.py         # Configuration
-│   ├── tests/
-│   │   ├── conftest.py
-│   │   └── test_app.py
-│   └── uploads/                # Local resume storage
-│
-├── frontend/
-│   ├── SETUP.md                 # Frontend setup instructions
-│   ├── package.json             # npm dependencies
-│   ├── vite.config.ts           # Vite configuration
-│   ├── tsconfig.json            # TypeScript configuration
-│   ├── index.html               # HTML entry point
-│   └── src/
-│       ├── main.ts              # Application entry point
-│       ├── App.vue              # Root component
-│       ├── style.css            # Global styles
-│       ├── views/
-│       │   ├── Home.vue         # Landing page
-│       │   ├── Login.vue        # User login
-│       │   ├── Register.vue     # User registration
-│       │   ├── Upload.vue       # Resume upload
-│       │   └── Result.vue       # Analysis results
-│       ├── stores/
-│       │   ├── auth.ts          # Auth state management
-│       │   └── resume.ts        # Resume state management
-│       ├── api/
-│       │   └── resume.ts        # API client
-│       ├── router/
-│       │   └── index.ts         # Routing and guards
-│       └── types/
-│           └── index.ts         # TypeScript interfaces
-│
-├── docs/
-│   └── product_requirement_doc.txt
-└── .gitignore
-```
 
 ## Quick Start
 
@@ -199,111 +156,102 @@ The backend will start on `http://localhost:8000`
 
 ## Security Features
 
-✓ JWT token-based authentication
-✓ Password hashing with bcrypt
-✓ Row-Level Security (RLS) in database
-✓ CORS protection
-✓ User data isolation by session
-✓ Secure token storage
+✓ JWT token-based authentication  
+✓ Password hashing with bcrypt  
+✓ Row-Level Security (RLS) in database  
+✓ CORS protection  
+✓ User data isolation  
+✓ Secure token storage  
 ✓ Protected API endpoints
 
-## Future Enhancements
-
-### Phase 2
-
-- PDF generation for optimized resumes
-- Resume version comparison
-- Resume history and versioning
-- Advanced analytics dashboard
-
-### Phase 3
-
-- ATS (Applicant Tracking System) optimization
-- Industry-specific scoring models
-- Job description matching
-- Behavioral analysis features
-
-### Phase 4
-
-- Cloud file storage (AWS S3 / Google Cloud Storage)
-- Redis caching for performance
-- Real-time collaboration features
-- Mobile native apps (React Native / Flutter)
-
-## Database Schema
-
-### Users Table
-
-```sql
-- id (BIGINT PRIMARY KEY)
-- email (TEXT UNIQUE)
-- name (TEXT)
-- password_hash (TEXT)
-- created_at (TIMESTAMP)
-- updated_at (TIMESTAMP)
-```
-
-### Resumes Table
-
-```sql
-- id (UUID PRIMARY KEY)
-- user_id (BIGINT FK)
-- filename (TEXT)
-- file_path (TEXT)
-- score (INTEGER)
-- feedback (TEXT)
-- suggestions (JSONB)
-- created_at (TIMESTAMP)
-- updated_at (TIMESTAMP)
-```
-
-## Development Guidelines
-
-### Code Quality
-
-- Use TypeScript for type safety
-- Follow Vue 3 Composition API patterns
-- Use ESLint for code consistency
-- Format code with Prettier
+## Development & Testing
 
 ### Testing
-
 ```bash
-# Frontend tests (when available)
-npm run test
-
 # Backend tests
+cd backend
 pytest tests/
+
+# Frontend build validation
+cd frontend
+npm run build
+npm run lint
 ```
 
 ### Environment Variables
-
 Never commit `.env` files. Use `.env.example` as a template.
 
 ## Deployment
 
-See individual setup guides for deployment instructions:
-
-- [Backend Deployment](backend/SETUP.md#deployment)
+See individual setup guides:
+- [Backend Deployment](backend/SETUP.md)
 - [Frontend Deployment](frontend/SETUP.md)
 
-## Contributing
-
-1. Create a feature branch
-2. Make your changes
-3. Test thoroughly
-4. Submit a pull request
 
 ## Support
 
-For issues or questions, please refer to the setup guides or contact the development team.
+**Team Members:**
+- Cui Langxuan -(langxuan.cui@my.jcu.edu.au)- Full-stack Developer and Project Manager
+- Julius Eje -(JuliusEjeanye@icloud.com)- Full-stack Developer (Data-focused)
 
-## Directory Structure (Original)
+**Course Lecturer:**
+- Liu Dasheng
 
-- **docs/**: Requirement documents, design specifications, and workshop reports.
-- **services/**: Shared business logic modules, resume analysis pipelines, and JD-processing utilities.
-- **storage/**: Persistence adapters, migration scripts, and history management assets.
-- **infrastructure/**: Deployment and environment configuration (e.g., Dockerfiles, IaC templates).
-- **tests/**: Automated test suites covering frontend, backend, and service integrations.
-- **data/**: Sample resumes and job descriptions for development and testing (ignored by version control).
-- **scripts/**: Developer utilities for setup, linting, data preparation, and CI/CD tasks.
+For technical issues or questions, please refer to the setup guides or contact the development team.
+
+
+
+## Visual Assets(/images)
+
+Project diagrams and design mockups are available in the `images/` folder:
+
+### Architecture & Design Diagrams
+- **[Architecture Diagram](images/architecture.png)** - System architecture visualization
+- **[Entity-Relationship Diagram](images/erd.png)** - Database schema and relationships
+- **[Authentication Flow](images/auth.png)** - User authentication process
+- **[Upload Flow](images/upload-flow.png)** - Resume upload and analysis workflow
+- **[Registration Flow](images/Registration.png)** - User registration process
+
+### UI Design Mockups
+- **[Home Page](images/UI_DESIGN_MOCKS/Home.png)** - Landing page design
+- **[Login Page](images/UI_DESIGN_MOCKS/Login.png)** - User login interface
+- **[Register Page](images/UI_DESIGN_MOCKS/Register.png)** - Registration interface
+- **[Upload Page](images/UI_DESIGN_MOCKS/Upload.png)** - Resume upload interface
+- **[Result Page](images/UI_DESIGN_MOCKS/Result.png)** - Analysis results display
+
+---
+
+## Documentation
+
+Comprehensive project documentation is available in the `docs/` folder:
+
+### Course Requirements
+- **[LearnJCU Requirements](docs/learnjcu_requirement_and_rubric_file/)** - Official project requirements and assessment rubric
+
+### Technical Documentation
+- **[Architecture Design](docs/ARCHITECTURE.md)** - System architecture and component design
+- **[Database Design](docs/DATABASE_DESIGN.md)** - Database schema and ER diagrams
+- **[UI/UX Design](docs/UI_DESIGN.md)** - User interface design and mockups
+- **[Testing Strategy](docs/TESTING_STRATEGY.md)** - Test coverage and CI/CD pipeline
+- **[Tools & Libraries](docs/TOOLS_AND_LIBRARIES.md)** - Technology stack justification
+
+### Process Documentation
+- **[Agile Methodology](docs/AGILE_METHODOLOGY.md)** - Sprint planning and retrospectives
+- **[Version Control](docs/VERSION_CONTROL.md)** - Git workflow and collaboration
+
+### Requirements & Design Assets
+- **[Product Requirements](docs/product_requirement_doc.txt)** - User stories and acceptance criteria
+- **[Design Mockups](docs/UI_DESIGN_MOCKS/)** - Visual design assets and UI prototypes
+
+For a complete documentation index, see [docs/README.md](docs/README.md)
+
+---
+
+## Project Structure
+
+Key directories:
+- `backend/` - Flask API server
+- `frontend/` - Vue 3 SPA
+- `docs/` - Project documentation
+- `images/` - Architecture diagrams and UI mockups
+- `tests/` - Test suites
