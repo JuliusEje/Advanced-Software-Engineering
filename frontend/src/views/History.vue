@@ -14,7 +14,7 @@
 
     <div class="history-container">
       <JobInsightCard />
-      
+
       <div class="history-header">
         <h2>Your Resume History</h2>
         <p>All your previously analyzed resumes in one place</p>
@@ -201,7 +201,7 @@ const getScoreLabel = (score: number | null): string => {
 
 const downloadingId = ref<string | null>(null);
 
-const downloadResume = async (resumeId: string, filename: string) => {
+const downloadResume = async (resumeId: string, _filename: string) => {
   downloadingId.value = resumeId;
   try {
     const response = await apiClient.get(`/resume/${resumeId}/download`);
