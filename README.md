@@ -6,8 +6,10 @@
 **Institution:** James Cook University (JCU)  
 **Assessment:** Project Assignment  
 **Team:** Group 6  
-**Team Members:** Cui Langxuan(@Hugooooooo526), Julius Eje(@JuliusEje)  
-**Lecturer:** Liu Dasheng(@Dasheng LIU)
+**Team Members:** Cui Langxuan, ([@Hugooooooo526](https://github.com/Hugooooooo526))
+([Julius Eje](https://github.com/JuliusEje))  
+
+**Lecturer:**([Liu Dasheng](https://github.com/DashengLIU))
 **Semester:** 2026 Semester 1
 
 ---
@@ -15,6 +17,16 @@
 ## Project Overview
 
 A professional web application that uses AI to analyze and optimize resumes. Features secure user authentication, session management, and detailed resume scoring with actionable improvement suggestions.
+
+## System Architecture
+
+The system follows a three-tier architecture consisting of:
+
+- **Client Layer**: Vue 3 SPA handling UI and user interaction  
+- **Application Layer**: Flask REST API managing business logic  
+- **Data & AI Layer**: Supabase database and Google Gemini AI for resume analysis  
+
+This architecture ensures scalability, security, and separation of concerns.
 
 ## Features
 
